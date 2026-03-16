@@ -1,0 +1,34 @@
+# Git Commit Message 规范
+
+本项目使用 Conventional Commits 规范，AI 生成 commit message 时必须遵循：
+
+## 格式
+```
+<emoji> <type>(<scope>): <subject>
+```
+
+## 允许的 type（必须使用以下之一）
+- `feat` ✨ - 新增功能
+- `fix` 🐛 - 修复缺陷
+- `docs` 📝 - 文档变更
+- `style` 🌈 - 代码格式
+- `refactor` 🔄 - 代码重构
+- `perf` 🚀 - 性能优化
+- `test` 🧪 - 测试相关
+- `build` 📦️ - 构建相关
+- `ci` ⚙️ - CI 配置
+- `revert` ↩️ - 回滚 commit
+- `chore` 🛠️ - 其他修改
+- `wip` 🚧 - 开发中
+
+## 规则
+1. type 必须小写，必须是上述枚举之一
+2. subject 使用中文，简短描述
+3. subject 不以句号结尾
+4. scope 可选
+5. 在 type 前添加对应的 emoji 图标
+
+## 示例
+- `✨ feat: 添加用户登录功能`
+- `🐛 fix(api): 修复接口超时问题`
+- `📝 docs: 更新项目文档`
