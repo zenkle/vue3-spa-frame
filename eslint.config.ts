@@ -5,6 +5,7 @@ import pluginVue from "eslint-plugin-vue";
 import configPrettier from "eslint-config-prettier";
 import pluginPrettier from "eslint-plugin-prettier";
 import autoImportConfig from "./.eslintrc-auto-import.json" assert { type: "json" };
+
 export default tseslint.config(
   // 忽略文件
   {
@@ -49,6 +50,12 @@ export default tseslint.config(
       parserOptions: {
         parser: tseslint.parser,
       },
+    },
+    plugins: {
+      vue: pluginVue,
+    },
+    rules: {
+      "vue/multi-word-component-names": "off",
     },
   },
   // Prettier 规则
