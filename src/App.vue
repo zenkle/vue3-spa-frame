@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import HelloWorld from "./components/HelloWorld.vue";
+import QianWen from "./components/QianWen/index.vue";
 </script>
 
 <template>
-  <HelloWorld />
+  <QianWen />
 </template>

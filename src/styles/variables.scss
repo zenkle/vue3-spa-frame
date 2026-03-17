@@ -1,1 +1,10 @@
 $bg-color: #242424;
+.textarea-resize-none {
+  .n-input-wrapper {
+    resize: none !important;
+  }
+
+  .n-input__textarea-el {
+    resize: none !important;
+  }
+}
