@@ -2,7 +2,7 @@
   <div v-html="htmlContent"></div>
 </template>
 <script setup lang="ts">
-import { renderMarkdown } from "./index";
+import { renderMarkdown } from "./plugins";
 const props = defineProps({
   content: {
     type: String,

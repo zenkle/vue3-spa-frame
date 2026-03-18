@@ -21,8 +21,8 @@
   },
   "dependencies": {
     "dompurify": "^3.3.3",
-    "highlight.js": "^11.11.1",
     "markdown-it": "^14.1.1",
+    "markdown-it-highlightjs": "^4.3.0",
     "markdown-it-mathjax3": "^5.2.0",
     "markdown-it-mermaid": "^0.2.5",
     "mathjax-full": "^3.2.1",
