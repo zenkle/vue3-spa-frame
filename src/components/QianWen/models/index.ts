@@ -44,10 +44,17 @@ export const modelMappingList: TypesModelLLM[] = [
     },
     async chatFetch(): Promise<Response> {
       const mockData = new ReadableStream({
-        start(controller) {
-          mockEventStreamText.split("\n").forEach((line: any) => {
-            controller.enqueue(new TextEncoder().encode(`${line}\n`));
-          });
+        async start(controller) {
+          // 打字机效果：逐块发送
+          const text = mockEventStreamText;
+          const chunkSize = 3; // 每次发送的字符数
+          const delay = 20; // 每次发送的延迟(毫秒)
+
+          for (let i = 0; i < text.length; i += chunkSize) {
+            const chunk = text.slice(i, i + chunkSize);
+            controller.enqueue(new TextEncoder().encode(chunk));
+            await sleep(delay);
+          }
           controller.close();
         },
       });

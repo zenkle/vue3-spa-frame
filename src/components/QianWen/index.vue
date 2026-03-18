@@ -52,10 +52,9 @@
 </template>
 <script setup lang="ts">
 import { ArrowUp } from "@vicons/ionicons5";
-// import { useAssistantStore } from "@/stores/assistant";
+import { useAssistantStore } from "@/stores/assistant";
 import { messagesStore } from "@/stores/messages";
 import Markdown from "./markdown/index.vue";
-import { mockEventStreamText } from "./data";
 
 const styleConfig = {
   "--n-border-radius": "20px",
@@ -64,7 +63,7 @@ const styleConfig = {
   "--n-padding-vertical": "10px",
 };
 
-// const assistantStore = useAssistantStore();
+const assistantStore = useAssistantStore();
 const { messages, addMessage } = messagesStore();
 
 const inputTextString = ref("");
@@ -72,6 +71,26 @@ const refInputTextString =
   useTemplateRef<HTMLTextAreaElement>("refInputTextString");
 
 let isTyping = ref(false);
+
+// 打字机效果：逐块读取流并更新内容
+const typewriterEffect = async (
+  reader: ReadableStreamDefaultReader<string>,
+  messageIndex: number,
+) => {
+  let accumulatedContent = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    if (value) {
+      accumulatedContent += value;
+      // 实时更新消息内容
+      messages[messageIndex].content = accumulatedContent;
+    }
+  }
+};
+
 const handleSend = async () => {
   const textContent = inputTextString.value?.trim() || "";
   if (!textContent) {
@@ -79,31 +98,35 @@ const handleSend = async () => {
   }
   isTyping.value = true;
   inputTextString.value = "";
+
   addMessage({
     id: Date.now(),
     role: "user",
     content: textContent,
   });
+
   addMessage({
     id: Date.now(),
     role: "assistant",
     content: "",
   });
-  messages[messages.length - 1].content = mockEventStreamText;
-  isTyping.value = false;
 
-  // const { error, reader } = await assistantStore.assistantRequest({
-  //   text: textContent,
-  // });
-  // if (error) {
-  //   messages[messages.length - 1].content = error.message;
-  //   isTyping.value = false;
-  //   return;
-  // }
-  // if (reader) {
-  //   messages[messages.length - 1].content = reader;
-  //   isTyping.value = false;
-  // }
+  const messageIndex = messages.length - 1;
+
+  const { error, reader } = await assistantStore.assistantRequest({
+    text: textContent,
+  });
+
+  if (error) {
+    messages[messageIndex].content = "请求失败，请重试";
+    isTyping.value = false;
+    return;
+  }
+
+  if (reader) {
+    await typewriterEffect(reader, messageIndex);
+    isTyping.value = false;
+  }
 };
 </script>
 <style lang="scss" scoped>
