@@ -1,8 +1,32 @@
 <template>
   <div class="w-full h-full flex flex-col box-border p-4">
     <!-- 内容区域 -->
-    <div class="w-full h-full overflow-hidden">
-      <div v-for="(item, index) in 1000" :key="index">{{ item }}</div>
+    <div class="w-full h-full overflow-y-auto">
+      <div
+        v-for="msg in messages"
+        :key="msg.id"
+        class="mb-4 flex"
+        :class="{
+          'justify-end': msg.role === 'user',
+        }"
+      >
+        <div v-if="msg.role === 'user'" class="message-user">
+          {{ msg.content }}
+        </div>
+        <div v-if="msg.role === 'assistant'">
+          <div v-if="isTyping" class="g-placeholder">thinking...</div>
+          <div v-if="msg.content" class="message-assistant">
+            <Markdown :content="msg.content"></Markdown>
+            <!-- <MarkdownPreview
+          v-model:reader="outputTextReader"
+          :model="assistantStore.currentModelItem?.model"
+          :transform-stream-fn="
+            assistantStore.currentModelItem?.transformStreamValue
+          "
+        /> -->
+          </div>
+        </div>
+      </div>
     </div>
     <!-- 输入框区域 -->
     <div class="w-full relative">
@@ -28,10 +52,11 @@
 </template>
 <script setup lang="ts">
 import { ArrowUp } from "@vicons/ionicons5";
+// import { useAssistantStore } from "@/stores/assistant";
+import { messagesStore } from "@/stores/messages";
+import Markdown from "./markdown/index.vue";
+import { mockEventStreamText } from "./data";
 
-const inputTextString = ref("");
-const refInputTextString =
-  useTemplateRef<HTMLTextAreaElement>("refInputTextString");
 const styleConfig = {
   "--n-border-radius": "20px",
   "--n-padding-left": "20px",
@@ -39,8 +64,80 @@ const styleConfig = {
   "--n-padding-vertical": "10px",
 };
 
-const handleSend = () => {
-  console.log(inputTextString.value);
+// const assistantStore = useAssistantStore();
+const { messages, addMessage } = messagesStore();
+
+const inputTextString = ref("");
+const refInputTextString =
+  useTemplateRef<HTMLTextAreaElement>("refInputTextString");
+
+let isTyping = ref(false);
+const handleSend = async () => {
+  const textContent = inputTextString.value?.trim() || "";
+  if (!textContent) {
+    return;
+  }
+  isTyping.value = true;
+  inputTextString.value = "";
+  addMessage({
+    id: Date.now(),
+    role: "user",
+    content: textContent,
+  });
+  addMessage({
+    id: Date.now(),
+    role: "assistant",
+    content: "",
+  });
+  messages[messages.length - 1].content = mockEventStreamText;
+  isTyping.value = false;
+
+  // const { error, reader } = await assistantStore.assistantRequest({
+  //   text: textContent,
+  // });
+  // if (error) {
+  //   messages[messages.length - 1].content = error.message;
+  //   isTyping.value = false;
+  //   return;
+  // }
+  // if (reader) {
+  //   messages[messages.length - 1].content = reader;
+  //   isTyping.value = false;
+  // }
 };
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.message-user {
+  box-sizing: border-box;
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #e6f7ff;
+  border-top-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+}
+.message-assistant {
+  box-sizing: border-box;
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #f4f4f4;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+}
+@keyframes blink-fade {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+.g-placeholder {
+  color: #666;
+  animation: blink-fade 1.2s infinite ease-in-out;
+}
+</style>

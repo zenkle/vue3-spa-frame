@@ -11,9 +11,12 @@ export {};
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Markdown: typeof import('./src/components/QianWen/markdown/index.vue')['default']
+    MarkdownPreview: typeof import('./src/components/QianWen/MarkdownPreview/index.vue')['default']
     NButton: typeof import('naive-ui')['NButton']
     NIcon: typeof import('naive-ui')['NIcon']
     NInput: typeof import('naive-ui')['NInput']
+    NSpin: typeof import('naive-ui')['NSpin']
     QianWen: typeof import('./src/components/QianWen/index.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

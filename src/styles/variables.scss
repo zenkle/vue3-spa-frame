@@ -1,4 +1,4 @@
-$bg-color: #242424;
+$color-default: #536fec;
 .textarea-resize-none {
   .n-input-wrapper {
     resize: none !important;
@@ -7,4 +7,30 @@ $bg-color: #242424;
   .n-input__textarea-el {
     resize: none !important;
   }
+}
+/* MathJax 基础样式修复 */
+.mjx-container {
+  display: inline-block;
+  font-size: 100%;
+  vertical-align: middle; /* 确保公式与文字基线对齐 */
+  text-align: center;
+}
+
+/* 块级公式居中 */
+.mjx-container[display="true"] {
+  display: block;
+  margin: 1em 0;
+  text-align: center;
+}
+
+/* 确保 SVG 内部元素可见 */
+.mjx-container svg {
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* 防止公式在移动端溢出 */
+.markdown-body {
+  overflow-x: auto;
 }

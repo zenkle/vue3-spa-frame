@@ -34,9 +34,10 @@ export default defineConfig({
       resolvers: [NaiveUiResolver()],
     }),
   ],
+  assetsInclude: ["**/*.md"],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src"),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
   css: {
