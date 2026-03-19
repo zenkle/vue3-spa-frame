@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full flex flex-col box-border p-4">
     <!-- 内容区域 -->
-    <div class="w-full h-full overflow-y-auto">
+    <div ref="scrollContainer" class="w-full h-full overflow-y-auto">
       <div
         v-for="msg in messages"
         :key="msg.id"
@@ -17,13 +17,6 @@
           <div v-if="isTyping" class="g-placeholder">thinking...</div>
           <div v-if="msg.content" class="message-assistant">
             <Markdown :content="msg.content"></Markdown>
-            <!-- <MarkdownPreview
-          v-model:reader="outputTextReader"
-          :model="assistantStore.currentModelItem?.model"
-          :transform-stream-fn="
-            assistantStore.currentModelItem?.transformStreamValue
-          "
-        /> -->
           </div>
         </div>
       </div>
@@ -69,8 +62,18 @@ const { messages, addMessage } = messagesStore();
 const inputTextString = ref("");
 const refInputTextString =
   useTemplateRef<HTMLTextAreaElement>("refInputTextString");
+const scrollContainer = ref<HTMLElement | null>(null);
 
-let isTyping = ref(false);
+const isTyping = ref(false);
+
+// 滚动到底部
+const scrollToBottom = () => {
+  nextTick(() => {
+    if (scrollContainer.value) {
+      scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight;
+    }
+  });
+};
 
 // 打字机效果：逐块读取流并更新内容
 const typewriterEffect = async (
@@ -86,7 +89,9 @@ const typewriterEffect = async (
     if (value) {
       accumulatedContent += value;
       // 实时更新消息内容
-      messages[messageIndex].content = accumulatedContent;
+      messages.value[messageIndex].content = accumulatedContent;
+      // 自动滚动到底部
+      scrollToBottom();
     }
   }
 };
@@ -105,27 +110,29 @@ const handleSend = async () => {
     content: textContent,
   });
 
+  // 用户发送消息后滚动到底部
+  scrollToBottom();
+
   addMessage({
     id: Date.now(),
     role: "assistant",
     content: "",
   });
 
-  const messageIndex = messages.length - 1;
+  const messageIndex = messages.value.length - 1;
 
   const { error, reader } = await assistantStore.assistantRequest({
     text: textContent,
   });
-
+  isTyping.value = false;
   if (error) {
-    messages[messageIndex].content = "请求失败，请重试";
-    isTyping.value = false;
+    messages.value[messageIndex].content = "请求失败，请重试";
+    scrollToBottom();
     return;
   }
 
   if (reader) {
     await typewriterEffect(reader, messageIndex);
-    isTyping.value = false;
   }
 };
 </script>

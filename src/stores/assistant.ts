@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import {
   defaultModelName,
   modelMappingList,
-} from "../../components/QianWen/models";
+} from "../components/QianWen/models";
 
 export const useAssistantStore = defineStore("assistant", {
   state: () => ({
