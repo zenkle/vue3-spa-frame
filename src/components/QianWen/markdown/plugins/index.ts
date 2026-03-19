@@ -3,6 +3,7 @@ import markdownItHighlightjs from "markdown-it-highlightjs";
 import hljs from "./highlight";
 import markdownItMathjax3 from "markdown-it-mathjax3";
 import DOMPurify from "dompurify";
+
 // 初始化 markdown-it 实例
 const md = new MarkdownIt({
   html: true, // 允许 HTML 标签

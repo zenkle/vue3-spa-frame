@@ -1,5 +1,5 @@
 <template>
-  <div class="markdown-body" v-html="htmlContent"></div>
+  <div ref="markdownRef" class="markdown-body" v-html="htmlContent"></div>
 </template>
 <script setup lang="ts">
 import { renderMarkdown } from "./plugins";
@@ -13,7 +13,56 @@ const props = defineProps({
   },
 });
 
+const markdownRef = ref<HTMLElement | null>(null);
 const htmlContent = ref<string>("");
+
+// 复制代码到剪贴板
+const copyCode = async (code: string, button: HTMLButtonElement) => {
+  try {
+    await navigator.clipboard.writeText(code);
+    const originalText = button.textContent;
+    button.textContent = "已复制";
+    button.classList.add("copied");
+    setTimeout(() => {
+      button.textContent = originalText;
+      button.classList.remove("copied");
+    }, 2000);
+  } catch (err) {
+    console.error("复制失败:", err);
+  }
+};
+
+// 为代码块添加复制按钮
+const addCopyButtons = () => {
+  if (!markdownRef.value) return;
+
+  const codeBlocks = markdownRef.value.querySelectorAll("pre code.hljs");
+
+  codeBlocks.forEach((codeBlock) => {
+    // 避免重复添加
+    if (codeBlock.parentElement?.querySelector(".copy-button")) return;
+
+    const pre = codeBlock.parentElement as HTMLPreElement;
+    if (!pre) return;
+
+    // 设置 pre 为相对定位
+    pre.style.position = "relative";
+
+    // 创建复制按钮
+    const copyButton = document.createElement("button");
+    copyButton.className = "copy-button";
+    copyButton.textContent = "复制代码";
+    copyButton.type = "button";
+
+    // 绑定点击事件
+    copyButton.addEventListener("click", () => {
+      const code = codeBlock.textContent || "";
+      copyCode(code, copyButton);
+    });
+
+    pre.appendChild(copyButton);
+  });
+};
 
 // 监听 content 变化，实现实时渲染
 watch(
@@ -21,6 +70,10 @@ watch(
   (newContent) => {
     if (newContent) {
       htmlContent.value = renderMarkdown(newContent);
+      // 内容更新后添加复制按钮
+      nextTick(() => {
+        addCopyButtons();
+      });
     }
   },
   { immediate: true },
@@ -33,11 +86,28 @@ watch(
 
   // 代码块样式
   :deep(pre code.hljs) {
+    display: block;
     padding: 16px;
+    padding-top: 40px; // 为复制按钮留出空间
     font-family: "Fira Code", "JetBrains Mono", Consolas, Monaco, monospace;
     font-size: 13px;
     line-height: 1.5;
     border-radius: 8px;
+  }
+
+  // 复制按钮样式
+  :deep(.copy-button) {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: #999;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    transition: all 0.2s ease;
   }
 
   // 行内代码样式

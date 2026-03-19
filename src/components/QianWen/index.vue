@@ -150,7 +150,6 @@ const handleSend = async () => {
   box-sizing: border-box;
   display: inline-block;
   padding: 10px 20px;
-  background-color: #f4f4f4;
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
   border-bottom-left-radius: 20px;
