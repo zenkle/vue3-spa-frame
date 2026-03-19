@@ -1,5 +1,6 @@
 import MarkdownIt from "markdown-it";
 import markdownItHighlightjs from "markdown-it-highlightjs";
+import hljs from "./highlight";
 import markdownItMathjax3 from "markdown-it-mathjax3";
 import DOMPurify from "dompurify";
 // 初始化 markdown-it 实例
@@ -9,7 +10,7 @@ const md = new MarkdownIt({
   typographer: true, // 启用排版优化
 });
 // 高亮代码块
-md.use(markdownItHighlightjs);
+md.use(markdownItHighlightjs, { hljs });
 // 数学公式渲染
 md.use(markdownItMathjax3);
 

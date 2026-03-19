@@ -15,7 +15,7 @@
         </div>
         <div v-if="msg.role === 'assistant'">
           <div v-if="isTyping" class="g-placeholder">thinking...</div>
-          <div v-if="msg.content" class="message-assistant">
+          <div v-else class="message-assistant">
             <Markdown :content="msg.content"></Markdown>
           </div>
         </div>
@@ -89,7 +89,7 @@ const typewriterEffect = async (
     if (value) {
       accumulatedContent += value;
       // 实时更新消息内容
-      messages.value[messageIndex].content = accumulatedContent;
+      messages[messageIndex].content = accumulatedContent;
       // 自动滚动到底部
       scrollToBottom();
     }
@@ -119,14 +119,14 @@ const handleSend = async () => {
     content: "",
   });
 
-  const messageIndex = messages.value.length - 1;
+  const messageIndex = messages.length - 1;
 
   const { error, reader } = await assistantStore.assistantRequest({
     text: textContent,
   });
   isTyping.value = false;
   if (error) {
-    messages.value[messageIndex].content = "请求失败，请重试";
+    messages[messageIndex].content = "请求失败，请重试";
     scrollToBottom();
     return;
   }
