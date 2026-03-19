@@ -4,7 +4,7 @@
 <script setup lang="ts">
 import { renderMarkdown } from "./plugins";
 // 引入 highlight.js 主题样式
-import "highlight.js/styles/atom-one-dark.css";
+import "highlight.js/styles/atom-one-light.css";
 
 const props = defineProps({
   content: {
