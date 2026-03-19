@@ -3,6 +3,7 @@
 </template>
 <script setup lang="ts">
 import { renderMarkdown } from "./plugins";
+import { renderMermaidCharts } from "./plugins/mermaid";
 // 引入 highlight.js 主题样式
 import "highlight.js/styles/atom-one-light.css";
 
@@ -45,6 +46,9 @@ const addCopyButtons = () => {
     const pre = codeBlock.parentElement as HTMLPreElement;
     if (!pre) return;
 
+    // 跳过 Mermaid 图表代码块
+    if (codeBlock.classList.contains("language-mermaid")) return;
+
     // 设置 pre 为相对定位
     pre.style.position = "relative";
 
@@ -70,9 +74,11 @@ watch(
   (newContent) => {
     if (newContent) {
       htmlContent.value = renderMarkdown(newContent);
-      // 内容更新后添加复制按钮
-      nextTick(() => {
+      // 内容更新后处理
+      nextTick(async () => {
         addCopyButtons();
+        // 渲染 Mermaid 图表
+        await renderMermaidCharts(markdownRef.value || undefined);
       });
     }
   },
@@ -92,6 +98,31 @@ watch(
     font-family: "Fira Code", "JetBrains Mono", Consolas, Monaco, monospace;
     font-size: 13px;
     line-height: 1.5;
+    border-radius: 8px;
+  }
+
+  // Mermaid 图表样式
+  :deep(.mermaid) {
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    margin: 16px 0;
+    overflow-x: auto;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+
+    svg {
+      max-width: 100%;
+      height: auto;
+    }
+  }
+
+  // Mermaid 渲染错误样式
+  :deep(.mermaid-error) {
+    padding: 16px;
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
     border-radius: 8px;
   }
 
