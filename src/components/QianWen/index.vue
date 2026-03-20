@@ -81,17 +81,37 @@ const typewriterEffect = async (
   messageIndex: number,
 ) => {
   let accumulatedContent = "";
+  let buffer = "";
 
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
 
     if (value) {
-      accumulatedContent += value;
-      // 实时更新消息内容
-      messages[messageIndex].content = accumulatedContent;
-      // 自动滚动到底部
-      scrollToBottom();
+      buffer += value;
+
+      // 解析 SSE 格式数据
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+
+      for (const line of lines) {
+        if (line.startsWith("data:")) {
+          const jsonStr = line.replace(/^data:\s*/, "").trim();
+          if (jsonStr === "[DONE]") continue;
+
+          try {
+            const json = JSON.parse(jsonStr);
+            const content = json.choices?.[0]?.delta?.content;
+            if (content) {
+              accumulatedContent += content;
+              messages[messageIndex].content = accumulatedContent;
+              scrollToBottom();
+            }
+          } catch {
+            // JSON 解析失败，忽略
+          }
+        }
+      }
     }
   }
 };
@@ -150,6 +170,7 @@ const handleSend = async () => {
   box-sizing: border-box;
   display: inline-block;
   padding: 10px 20px;
+  background-color: #f5f5f5;
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
   border-bottom-left-radius: 20px;
